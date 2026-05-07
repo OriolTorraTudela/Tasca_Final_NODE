@@ -6,16 +6,56 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
-    { "key": "accessToken", "value": "", "type": "string" },
-    { "key": "refreshToken", "value": "", "type": "string" },
-    { "key": "adminToken", "value": "", "type": "string" },
-    { "key": "managerToken", "value": "", "type": "string" },
-    { "key": "userId", "value": "", "type": "string" },
-    { "key": "roleId", "value": "", "type": "string" },
-    { "key": "permId", "value": "", "type": "string" },
-    { "key": "taskId", "value": "", "type": "string" },
-    { "key": "delegId", "value": "", "type": "string" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "managerToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "roleId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "permId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "taskId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "delegId",
+      "value": "",
+      "type": "string"
+    }
   ],
   "item": [
     {
@@ -23,65 +63,214 @@
       "item": [
         {
           "name": "1.1 Registre d'Usuari",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "pm.test('Té user', () => pm.expect(pm.response.json()).to.have.property('user'));"] } }],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('testEmail', 'joan_' + Date.now() + '@example.com');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Té user', () => pm.expect(pm.response.json()).to.have.property('user'));",
+                  "const r = pm.response.json(); if(r.user) pm.collectionVariables.set('userId', r.user._id);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/auth/register",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"email\":\"joan@example.com\",\"password\":\"Password123!\",\"firstName\":\"Joan\",\"lastName\":\"Garcia\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/register",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{testEmail}}\",\"password\":\"Password123!\",\"firstName\":\"Joan\",\"lastName\":\"Garcia\"}"
+            }
           }
         },
         {
           "name": "1.2 Login Correcte",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "const r = pm.response.json();", "pm.test('Té accessToken', () => pm.expect(r).to.have.property('accessToken'));", "pm.test('Té refreshToken', () => pm.expect(r).to.have.property('refreshToken'));", "pm.collectionVariables.set('accessToken', r.accessToken);", "pm.collectionVariables.set('refreshToken', r.refreshToken);"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('Té accessToken', () => pm.expect(r).to.have.property('accessToken'));",
+                  "pm.test('Té refreshToken', () => pm.expect(r).to.have.property('refreshToken'));",
+                  "pm.collectionVariables.set('accessToken', r.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', r.refreshToken);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/auth/login",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"email\":\"joan@example.com\",\"password\":\"Password123!\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{testEmail}}\",\"password\":\"Password123!\"}"
+            }
           }
         },
         {
           "name": "1.3 Login amb Password Incorrecte",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 401', () => pm.response.to.have.status(401));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/auth/login",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"email\":\"joan@example.com\",\"password\":\"PasswordIncorrecte123!\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"joan@example.com\",\"password\":\"PasswordIncorrecte123!\"}"
+            }
           }
         },
         {
           "name": "1.4 Renovar Access Token",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "const r = pm.response.json();", "pm.test('Té nou accessToken', () => pm.expect(r).to.have.property('accessToken'));", "pm.collectionVariables.set('accessToken', r.accessToken);"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('Té nou accessToken', () => pm.expect(r).to.have.property('accessToken'));",
+                  "pm.collectionVariables.set('accessToken', r.accessToken);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/auth/refresh",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"refreshToken\":\"{{refreshToken}}\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/refresh",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"refreshToken\":\"{{refreshToken}}\"}"
+            }
           }
         },
         {
           "name": "1.5 Logout",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/auth/logout",
-            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
-            "body": { "mode": "raw", "raw": "{\"refreshToken\":\"{{refreshToken}}\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/logout",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"refreshToken\":\"{{refreshToken}}\"}"
+            }
           }
         },
         {
           "name": "1.6 Forgot Password",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Té missatge', () => pm.expect(pm.response.json()).to.have.property('message'));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Té missatge', () => pm.expect(pm.response.json()).to.have.property('message'));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/auth/forgot-password",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"email\":\"joan@example.com\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/forgot-password",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{testEmail}}\"}"
+            }
           }
         },
         {
           "name": "1.7 Reset Password (token de consola)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 400 o 200', () => pm.expect([200,400]).to.include(pm.response.code));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400 o 200', () => pm.expect([200,400]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/auth/reset-password/token_de_prova_invalid",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"newPassword\":\"NovaPassword123!\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/reset-password/token_de_prova_invalid",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"newPassword\":\"NovaPassword123!\"}"
+            }
           }
         }
       ]
@@ -91,20 +280,86 @@
       "item": [
         {
           "name": "SETUP Login Admin",
-          "event": [{ "listen": "test", "script": { "exec": ["const r = pm.response.json();", "pm.collectionVariables.set('adminToken', r.accessToken);", "pm.collectionVariables.set('accessToken', r.accessToken);", "pm.collectionVariables.set('refreshToken', r.refreshToken);"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const r = pm.response.json();",
+                  "pm.collectionVariables.set('adminToken', r.accessToken);",
+                  "pm.collectionVariables.set('accessToken', r.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', r.refreshToken);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/auth/login",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"email\":\"admin@example.com\",\"password\":\"Password123!\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"admin@example.com\",\"password\":\"Password123!\"}"
+            }
           }
         },
         {
           "name": "SETUP Login Manager",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.collectionVariables.set('managerToken', pm.response.json().accessToken);"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('managerToken', pm.response.json().accessToken);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/auth/login",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"email\":\"manager@example.com\",\"password\":\"Password123!\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"manager@example.com\",\"password\":\"Password123!\"}"
+            }
+          }
+        },
+        {
+          "name": "SETUP Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('userToken', pm.response.json().accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"user@example.com\",\"password\":\"Password123!\"}"
+            }
           }
         }
       ]
@@ -114,43 +369,136 @@
       "item": [
         {
           "name": "2.1 Llistar Usuaris (Admin)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Array d\\'usuaris', () => pm.expect(pm.response.json().users).to.be.an('array'));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Array d\\'usuaris', () => pm.expect(pm.response.json().users).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/users",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "2.2 Obtenir Usuari per ID",
-          "event": [{ "listen": "prerequest", "script": { "exec": ["const r = pm.collectionVariables.get('lastUserId') || '';"] } }, { "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "const r = pm.response.json(); if(r._id) pm.collectionVariables.set('userId', r._id);"] } }],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const r = pm.collectionVariables.get('lastUserId') || '';"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json(); if(r._id) pm.collectionVariables.set('userId', r._id);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/users/{{userId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users/{{userId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "2.3 Actualitzar Usuari",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "PUT", "url": "{{baseUrl}}/api/users/{{userId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"firstName\":\"Joan\",\"lastName\":\"Garcia Actualitzat\"}" }
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/users/{{userId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"firstName\":\"Joan\",\"lastName\":\"Garcia Actualitzat\"}"
+            }
           }
         },
         {
           "name": "2.4 Obtenir Permisos de l'Usuari",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Té allPermissions', () => pm.expect(pm.response.json()).to.have.property('allPermissions'));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Té allPermissions', () => pm.expect(pm.response.json()).to.have.property('allPermissions'));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/users/{{userId}}/permissions",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users/{{userId}}/permissions",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "2.5 Esborrar Usuari (Admin)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200 o 404', () => pm.expect([200,404]).to.include(pm.response.code));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 o 404', () => pm.expect([200,404]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "DELETE", "url": "{{baseUrl}}/api/users/{{userId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/users/{{userId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         }
       ]
@@ -160,69 +508,222 @@
       "item": [
         {
           "name": "3.1 Llistar Rols",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "const r = pm.response.json(); if(r.roles && r.roles[0]) pm.collectionVariables.set('roleId', r.roles[0]._id);"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json(); if(r.roles && r.roles[0]) pm.collectionVariables.set('roleId', r.roles[0]._id);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/roles",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/roles",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "3.2 Obtenir Rol per ID",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/roles/{{roleId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/roles/{{roleId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "3.3 Crear Rol (Admin)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "const r = pm.response.json(); if(r._id) pm.collectionVariables.set('newRoleId', r._id);"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const r = pm.response.json(); if(r._id) pm.collectionVariables.set('newRoleId', r._id);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('testRoleName', 'editor_test_' + Date.now());"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/roles",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"name\":\"editor_test\",\"level\":2,\"description\":\"Editor de tasques de prova\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/roles",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"{{testRoleName}}\",\"level\":2,\"description\":\"Editor de tasques de prova\"}"
+            }
           }
         },
         {
           "name": "3.4 Actualitzar Rol (Admin)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "PUT", "url": "{{baseUrl}}/api/roles/{{roleId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"description\":\"Editor actualitzat de tasques\"}" }
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/roles/{{roleId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"description\":\"Editor actualitzat de tasques\"}"
+            }
           }
         },
         {
           "name": "3.5 Obtenir Jerarquia de Rol",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Té hierarchy', () => pm.expect(pm.response.json()).to.have.property('hierarchy'));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Té hierarchy', () => pm.expect(pm.response.json()).to.have.property('hierarchy'));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/roles/{{roleId}}/hierarchy",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/roles/{{roleId}}/hierarchy",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "3.6 Obtenir Permisos Heretats d'un Rol",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Té allPermissions', () => pm.expect(pm.response.json()).to.have.property('allPermissions'));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Té allPermissions', () => pm.expect(pm.response.json()).to.have.property('allPermissions'));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/roles/{{roleId}}/permissions",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/roles/{{roleId}}/permissions",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "3.7 Esborrar Rol (Admin)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200 o 404', () => pm.expect([200,404]).to.include(pm.response.code));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 o 404', () => pm.expect([200,404]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "DELETE", "url": "{{baseUrl}}/api/roles/{{newRoleId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/roles/{{newRoleId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "3.8 Validar Jerarquia Error (nivell invàlid)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 400', () => pm.response.to.have.status(400));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/roles",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"name\":\"invalid_cycle\",\"level\":1,\"parentRole\":\"{{roleId}}\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/roles",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"invalid_cycle\",\"level\":1,\"parentRole\":\"{{roleId}}\"}"
+            }
           }
         }
       ]
@@ -232,53 +733,166 @@
       "item": [
         {
           "name": "4.1 Llistar Permisos",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "const r = pm.response.json(); if(r.permissions && r.permissions[0]) pm.collectionVariables.set('permId', r.permissions[0]._id);"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json(); if(r.permissions && r.permissions[0]) pm.collectionVariables.set('permId', r.permissions[0]._id);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/permissions",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/permissions",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "4.2 Obtenir Permís per ID",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/permissions/{{permId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/permissions/{{permId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "4.3 Crear Permís (Admin)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "const r = pm.response.json(); if(r._id) pm.collectionVariables.set('newPermId', r._id);"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const r = pm.response.json(); if(r._id) pm.collectionVariables.set('newPermId', r._id);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/permissions",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"name\":\"tasks:delete_test\",\"description\":\"Esborrar tasques (prova)\",\"category\":\"tasks\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/permissions",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"tasks:delete_test\",\"description\":\"Esborrar tasques (prova)\",\"category\":\"tasks\"}"
+            }
           }
         },
         {
           "name": "4.4 Actualitzar Permís (Admin)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "PUT", "url": "{{baseUrl}}/api/permissions/{{newPermId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"description\":\"Esborrar tasques (actualitzat)\"}" }
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/permissions/{{newPermId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"description\":\"Esborrar tasques (actualitzat)\"}"
+            }
           }
         },
         {
           "name": "4.5 Esborrar Permís (Admin)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200 o 404', () => pm.expect([200,404]).to.include(pm.response.code));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 o 404', () => pm.expect([200,404]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "DELETE", "url": "{{baseUrl}}/api/permissions/{{newPermId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/permissions/{{newPermId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "4.6 Error - Crear Permís Duplicat",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 400', () => pm.response.to.have.status(400));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/permissions",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"name\":\"tasks:create\",\"description\":\"Crear tasques\",\"category\":\"tasks\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/permissions",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"tasks:create\",\"description\":\"Crear tasques\",\"category\":\"tasks\"}"
+            }
           }
         }
       ]
@@ -288,11 +902,37 @@
       "item": [
         {
           "name": "SETUP Registre usuari delegació",
-          "event": [{ "listen": "test", "script": { "exec": ["const r = pm.response.json(); if(r.user) pm.collectionVariables.set('delegTargetUserId', r.user._id);"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const r = pm.response.json(); if(r.user) pm.collectionVariables.set('delegTargetUserId', r.user._id);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('delegEmail', 'target_' + Date.now() + '@example.com');"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/auth/register",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"email\":\"target_deleg@example.com\",\"password\":\"Password123!\",\"firstName\":\"Target\",\"lastName\":\"Deleg\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/register",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{delegEmail}}\",\"password\":\"Password123!\",\"firstName\":\"Target\",\"lastName\":\"Deleg\"}"
+            }
           }
         }
       ]
@@ -302,52 +942,157 @@
       "item": [
         {
           "name": "5.1 Llistar Delegacions",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/delegations",
-            "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/delegations",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ]
           }
         },
         {
           "name": "5.3 Crear Delegació (Manager)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "const r = pm.response.json(); if(r._id) pm.collectionVariables.set('delegId', r._id);"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const r = pm.response.json(); if(r._id) pm.collectionVariables.set('delegId', r._id);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/delegations",
-            "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }, { "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"toUserId\":\"{{delegTargetUserId}}\",\"permission\":\"tasks:assign\",\"reason\":\"Cobertura de vacacions\",\"daysValid\":5}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/delegations",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"toUserId\":\"{{delegTargetUserId}}\",\"permission\":\"tasks:assign\",\"reason\":\"Cobertura de vacacions\",\"daysValid\":5}"
+            }
           }
         },
         {
           "name": "5.2 Obtenir Delegació per ID",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/delegations/{{delegId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/delegations/{{delegId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ]
           }
         },
         {
           "name": "5.4 Obtenir Delegacions d'un Usuari",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/delegations/user/{{delegTargetUserId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/delegations/user/{{delegTargetUserId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ]
           }
         },
         {
           "name": "5.5 Revocar Delegació",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "DELETE", "url": "{{baseUrl}}/api/delegations/{{delegId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }]
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/delegations/{{delegId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ]
           }
         },
         {
           "name": "5.6 Error - Delegació daysValid negatiu",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 400', () => pm.response.to.have.status(400));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/delegations",
-            "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }, { "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"toUserId\":\"{{delegTargetUserId}}\",\"permission\":\"tasks:assign\",\"reason\":\"Prova\",\"daysValid\":-1}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/delegations",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"toUserId\":\"{{delegTargetUserId}}\",\"permission\":\"tasks:assign\",\"reason\":\"Prova\",\"daysValid\":-1}"
+            }
           }
         }
       ]
@@ -357,11 +1102,33 @@
       "item": [
         {
           "name": "SETUP Crear Tasca",
-          "event": [{ "listen": "test", "script": { "exec": ["const r = pm.response.json(); if(r._id) pm.collectionVariables.set('taskId', r._id);"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const r = pm.response.json(); if(r._id) pm.collectionVariables.set('taskId', r._id);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/tasks",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"title\":\"Tasca de setup\",\"description\":\"Per proves\",\"status\":\"pending\",\"priority\":\"medium\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/tasks",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"Tasca de setup\",\"description\":\"Per proves\",\"status\":\"pending\",\"priority\":\"medium\"}"
+            }
           }
         }
       ]
@@ -371,42 +1138,119 @@
       "item": [
         {
           "name": "6.1 Obtenir Logs d'Auditoria",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Té logs', () => pm.expect(pm.response.json().logs).to.be.an('array'));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Té logs', () => pm.expect(pm.response.json().logs).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/audit/logs",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/audit/logs",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "6.2 Filtrar Logs per Acció",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/audit/logs?action=tasks:update",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/audit/logs?action=tasks:update",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "6.3 Filtrar Logs per Usuari",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/audit/logs?userId={{userId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/audit/logs?userId={{userId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "6.4 Estadístiques d'Auditoria",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Té totalActions', () => pm.expect(pm.response.json()).to.have.property('totalActions'));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Té totalActions', () => pm.expect(pm.response.json()).to.have.property('totalActions'));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/audit/stats",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/audit/stats",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "6.5 Exportar Logs CSV",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/audit/export?format=csv",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/audit/export?format=csv",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         }
       ]
@@ -416,44 +1260,135 @@
       "item": [
         {
           "name": "7.1 Crear Tasca (Amb Auditoria)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "const r = pm.response.json(); if(r._id) pm.collectionVariables.set('taskId', r._id);"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const r = pm.response.json(); if(r._id) pm.collectionVariables.set('taskId', r._id);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/tasks",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"title\":\"Tasca nova\",\"description\":\"Descripció de la tasca\",\"status\":\"pending\",\"priority\":\"high\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/tasks",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"Tasca nova\",\"description\":\"Descripció de la tasca\",\"status\":\"pending\",\"priority\":\"high\"}"
+            }
           }
         },
         {
           "name": "7.2 Llistar Tasques (Amb Paginació)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Té tasks i paginació', () => { const r = pm.response.json(); pm.expect(r).to.have.property('tasks'); pm.expect(r).to.have.property('total'); });"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Té tasks i paginació', () => { const r = pm.response.json(); pm.expect(r).to.have.property('tasks'); pm.expect(r).to.have.property('total'); });"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/tasks?page=1&limit=10",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/tasks?page=1&limit=10",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "7.3 Actualitzar Tasca (Amb Canvis en Auditoria)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "PUT", "url": "{{baseUrl}}/api/tasks/{{taskId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"title\":\"Tasca actualitzada\",\"status\":\"in_progress\"}" }
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/tasks/{{taskId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"Tasca actualitzada\",\"status\":\"in_progress\"}"
+            }
           }
         },
         {
           "name": "7.4 Obtenir Tasca per ID",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/tasks/{{taskId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/tasks/{{taskId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         },
         {
           "name": "7.5 Esborrar Tasca (Amb Auditoria)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "DELETE", "url": "{{baseUrl}}/api/tasks/{{taskId}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/tasks/{{taskId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         }
       ]
@@ -463,40 +1398,121 @@
       "item": [
         {
           "name": "8.1 Accés sense Token",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 401', () => pm.response.to.have.status(401));", "pm.test('Code NO_TOKEN', () => pm.expect(pm.response.json().code).to.eql('NO_TOKEN'));"] } }],
-          "request": { "method": "GET", "url": "{{baseUrl}}/api/tasks" }
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Code NO_TOKEN', () => pm.expect(pm.response.json().code).to.eql('NO_TOKEN'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/tasks"
+          }
         },
         {
           "name": "8.2 Token Invàlid",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 401', () => pm.response.to.have.status(401));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/tasks",
-            "header": [{ "key": "Authorization", "value": "Bearer token_invalido_123" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/tasks",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer token_invalido_123"
+              }
+            ]
           }
         },
         {
           "name": "8.3 Token Expirat (token fabricat)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 401', () => pm.response.to.have.status(401));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/tasks",
-            "header": [{ "key": "Authorization", "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MDlmMWY3N2JjZjg2Y2Q3OTk0MzkwMTEiLCJpYXQiOjE2MDAwMDAwMDAsImV4cCI6MTYwMDAwMDAwMX0.invalid" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/tasks",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MDlmMWY3N2JjZjg2Y2Q3OTk0MzkwMTEiLCJpYXQiOjE2MDAwMDAwMDAsImV4cCI6MTYwMDAwMDAwMX0.invalid"
+              }
+            ]
           }
         },
         {
           "name": "8.4 Accés a Ruta Admin sense Permís (USER)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 401 o 403', () => pm.expect([401,403]).to.include(pm.response.code));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 o 403', () => pm.expect([401,403]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/roles",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"name\":\"test_unauthorized\",\"level\":1}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/roles",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"test_unauthorized\",\"level\":1}"
+            }
           }
         },
         {
           "name": "8.5 Rate Limiting (header X-RateLimit)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200 o 429', () => pm.expect([200,429]).to.include(pm.response.code));", "pm.test('Headers X-RateLimit presents', () => { pm.expect(pm.response.headers.get('X-RateLimit-Limit')).to.not.be.null; });"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 o 429', () => pm.expect([200,429]).to.include(pm.response.code));",
+                  "pm.test('Headers X-RateLimit presents', () => { pm.expect(pm.response.headers.get('X-RateLimit-Limit')).to.not.be.null; });"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/tasks",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/tasks",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         }
       ]
@@ -506,37 +1522,106 @@
       "item": [
         {
           "name": "9.1 Validació - Email Invàlid",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 400', () => pm.response.to.have.status(400));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/auth/register",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"email\":\"email_invalido\",\"password\":\"Password123!\",\"firstName\":\"Joan\",\"lastName\":\"Garcia\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/register",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"email_invalido\",\"password\":\"Password123!\",\"firstName\":\"Joan\",\"lastName\":\"Garcia\"}"
+            }
           }
         },
         {
           "name": "9.2 Validació - Contrasenya Feble",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 400', () => pm.response.to.have.status(400));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/auth/register",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"email\":\"feble@example.com\",\"password\":\"123\",\"firstName\":\"Joan\",\"lastName\":\"Garcia\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/register",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"feble@example.com\",\"password\":\"123\",\"firstName\":\"Joan\",\"lastName\":\"Garcia\"}"
+            }
           }
         },
         {
           "name": "9.3 Validació - Email Duplicat",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 400', () => pm.response.to.have.status(400));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "url": "{{baseUrl}}/api/auth/register",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\"email\":\"admin@example.com\",\"password\":\"Password123!\",\"firstName\":\"Joan\",\"lastName\":\"Garcia\"}" }
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/register",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{testEmail}}\",\"password\":\"Password123!\",\"firstName\":\"Dup\",\"lastName\":\"Test\"}"
+            }
           }
         },
         {
           "name": "9.4 Recurs No Trobat (ID inexistent)",
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 404 o 500', () => pm.expect([404,500]).to.include(pm.response.code));"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404 o 500', () => pm.expect([404,500]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET", "url": "{{baseUrl}}/api/tasks/000000000000000000000000",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+            "method": "GET",
+            "url": "{{baseUrl}}/api/tasks/000000000000000000000000",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
           }
         }
       ]
