@@ -1,0 +1,24 @@
+const winston = require('winston');
+
+/**
+ * Logger de l'aplicació (winston). Usa 'combined.log' i 'error.log'
+ */
+const logger = winston.createLogger({
+  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.errors({ stack: true }),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+      ),
+      silent: process.env.NODE_ENV === 'test',
+    }),
+  ],
+});
+
+module.exports = logger;
